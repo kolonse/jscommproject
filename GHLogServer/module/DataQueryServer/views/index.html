@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!--[if lt IE 9]><script>document.createElement("canvas");</script><![endif]-->
+</head>
+<body>
+	<div id="total-cpu">
+		<p style="font-size: 20px;">CPU 占用图表:</p>
+		<canvas id="total-cpu-view" style="border:1px solid" width="720" height="480"></canvas>
+	</div>
+	<!--
+    	作者：KolonseTiger@gmail.com
+    	时间：2015-11-14
+    	描述：CPU占用总量显示
+    -->
+	<script type="application/javascript">	
+		function x_left(x,pix){
+			return x - pix;
+		}
+		function x_right(x,pix){
+			return x + pix;
+		}
+		function y_up(y,pix){
+			return y - pix;
+		}
+		function y_down(y,pix){
+			return y + pix;
+		}
+		var canvas = document.getElementById("total-cpu-view");
+		var context = canvas.getContext("2d");
+		var x = 0,y = 1;
+		var COO_WIDTH = canvas.width - 100 ;
+		var COO_HEIGHT = canvas.height - 100 ;
+		var COO_POINT_PIX = 5 ; // 假定每个点之间的像素水平距离为 5个像素
+		// 定义 CPU使用率原点坐标
+		var CPU_USEAGE_SRC_POINT = [50,400];
+		// http get 函数
+		function httpGet(theUrl, callback){
+		    var xmlHttp = new XMLHttpRequest();
+		    xmlHttp.onreadystatechange = function() {
+		        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+		        	callback(null,JSON.parse(xmlHttp.responseText));
+		        }
+		    }
+		    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+		    xmlHttp.send(null);
+		}	
+		// 值到纵坐标的映射值
+		function toCooValueY(srcPointY,height,value){
+			return y_up(srcPointY,Math.floor(value * height / 100));
+		}
+		/**
+		 * 点集合类
+		 * areaWidth 表示区域的宽 用于坐标转化
+		 * areaHeight 表示区域的高
+		 */
+		var Points = function(srcPoint,areaWidth,areaHeight,structColor,lineColor,maxPoints){
+			this.srcPoint = srcPoint ;
+			this.areaWidth = areaWidth ;
+			this.areaHeight = areaHeight ;
+			this.points = [];
+			this.maxPoints = maxPoints || Math.floor(areaWidth / COO_POINT_PIX) ;
+			this.pointPix = Math.floor(areaWidth / this.maxPoints) ;
+			this.getSrcPoint = function(){
+				return srcPoint ;
+			}
+			this.getWidth = function(){
+				return areaWidth ;
+			}
+			this.getHeight = function(){
+				return areaHeight ;
+			}
+			this.getStructColor = function(){
+				return structColor || "#000000";
+			}
+			this.getLineColor = function(){
+				return lineColor || "#FF00FF" ;
+			}
+		}
+		Points.prototype.push = function(data){
+			/**
+			 * data 的数据类型是数组 如果服务器有多组CPU 那么就会返回每个CPU的占用
+			 * 这里需要转化成总共的百分比
+			 */
+			if( data.length === 0 ){ // 如果数组为空那么不进行处理
+				return ;
+			}
+			var value = 0 ;
+			for( var i = 0; i < data.length; i ++){
+				value += data[i];
+			}
+			value /= data.length ;
+			// 对 value 的值进行纵坐标映射
+			valueY = toCooValueY(this.srcPoint[y],this.areaHeight,value);
+			// 对 value 的值进行横坐标映射
+			valueX = this.srcPoint[x];
+			if( this.points.length !== 0 ){
+				valueX = this.points[this.points.length - 1][x] + this.pointPix ;
+			}
+			this.points.push([valueX,valueY]);
+			// 如果超过了最大能容忍存储点的数目 那么将坐标重新更新
+			if( this.points.length > this.maxPoints ){
+				this.points = this.points.slice(1);
+				for( var i = 0; i < this.points.length; i ++ ){
+					this.points[i][x] -= this.pointPix ;
+				}
+			}
+		}
+		Points.prototype.getPoints = function(){
+			return this.points ;
+		}
+		// 定义坐标类
+		/**
+		 * @param {Object} ctx 是一个上下文对象实例
+		 * @param {Object} dis 显示对象 必须包含原点坐标，宽，高，名字的属性
+		 * 需要 dis 提供 以下方法,getSrcPoint,getWidth,getHeight,getName
+		 * getStructColor,getLineColor,getPoints();
+		 */
+		var Coordinate = function(ctx,dis){
+			this.ctx = ctx ;
+			this.dis = dis ;
+		}
+		/**
+		 * 绘制坐标线
+		 */
+		Coordinate.prototype.drawCoordinate = function(){
+			var context = this.ctx ;
+			var srcPoint = this.dis.getSrcPoint() ;
+			var w = this.dis.getWidth();
+			var h = this.dis.getHeight();
+			context.save();
+			context.beginPath();
+			var color = this.dis.getStructColor();//"#000000";
+			context.strokeStyle = color;
+			/**
+			 * 绘制纵坐标
+			 */
+			context.moveTo(srcPoint[x],srcPoint[y]);
+			context.lineTo(srcPoint[x],y_up(srcPoint[y],h));
+			context.lineTo(x_left(srcPoint[x],5),y_up(srcPoint[y],h-5));
+			context.moveTo(srcPoint[x],y_up(srcPoint[y],h));
+			context.lineTo(x_right(srcPoint[x],5),y_up(srcPoint[y],h-5));
+			// 在纵坐标 1/4 1/2 3/4 出各画一条小横线
+			context.moveTo(srcPoint[x],y_up(srcPoint[y],h/4));
+			context.lineTo(x_right(srcPoint[x],5),y_up(srcPoint[y],h/4));
+			context.moveTo(srcPoint[x],y_up(srcPoint[y],h/2));
+			context.lineTo(x_right(srcPoint[x],8),y_up(srcPoint[y],h/2));
+			context.moveTo(srcPoint[x],y_up(srcPoint[y],h*3/4));
+			context.lineTo(x_right(srcPoint[x],5),y_up(srcPoint[y],h*3/4));
+			// 绘制纵坐标文字
+			context.fillText(name,x_left(srcPoint[x],40),y_up(srcPoint[y],h / 2));
+			context.fillText("100",x_left(srcPoint[x],25),y_up(srcPoint[y],h - 5));
+			/**
+			 * 绘制横坐标
+			 */
+			context.moveTo(srcPoint[x],srcPoint[y]);
+			context.lineTo(x_right(srcPoint[x],w),srcPoint[y]);
+			context.lineTo(x_right(srcPoint[x],w-5),y_up(srcPoint[y],5));
+			context.moveTo(x_right(srcPoint[x],w),srcPoint[y]);
+			context.lineTo(x_right(srcPoint[x],w-5),y_down(srcPoint[y],5));
+			// 绘制横坐标文字
+			context.fillText("时间",x_right(srcPoint[x],w - 20),y_down(srcPoint[y],20));
+			context.stroke();
+			context.restore();			
+		}
+		Coordinate.prototype.drawLine = function(){
+			context.save();
+			context.beginPath();
+			var points = this.dis.getPoints() ;
+			var color = this.dis.getLineColor();//"#FF00FF";	
+			for(var i = 0; i < points.length; i ++){
+				if( i === 0 ){
+					context.moveTo(points[i][0],points[i][1]);
+				}else{
+					context.lineTo(points[i][0],points[i][1]);
+				}
+			}
+			context.strokeStyle = color ;
+			context.stroke();
+			context.restore();			
+		}
+		Coordinate.prototype.draw = function(){
+			//this.ctx.clearRect(this.dis.getSrcPoint()[x],this.dis.getSrcPoint()[y],this.dis.getWidth(),this.dis.getHeight());
+			this.drawCoordinate();
+			this.drawLine();
+		}
+		// 显示的数据对象定义
+		var cpuUsage = new Points(CPU_USEAGE_SRC_POINT,COO_WIDTH,COO_HEIGHT);
+		var cpuCoo = new Coordinate(context,cpuUsage);
+		window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame
+			|| window.mozRequestAnimationFrame || window.oRequestAnimationFrame
+			|| window.msRequestAnimationFrame || function(callback,element){window.setTimeout(callback,100)};
+		function draw(time){
+			context.clearRect(0,0,canvas.width,canvas.height)
+			cpuCoo.draw();
+			window.requestAnimationFrame(draw,canvas);
+		}
+		window.requestAnimationFrame(draw,canvas);
+		// CPU 使用率获取定时器
+		setInterval(function(){
+			httpGet("./cpu-usage",function(err,data){
+				if( err ){
+					console.log(err.message);
+					return ;
+				}
+				if( data.code !== 0 ){
+					console.log(data.message);
+					return ;
+				}
+				// 对CPU数据进行格式化
+				cpuUsage.push(data.data);
+			})
+		},1000);
+	</script>
+</body>
+</html>

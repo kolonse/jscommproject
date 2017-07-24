@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui">
+    <title>游戏充值</title>
+    <style>
+        html {
+            font-family: "Helvetica Neue", Helvetica, STHeiTi, Arial, sans-serif;
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+            font-size: 62.5%;
+        }
+        
+        body {
+            font-family: Helvetica, arial, freesans, clean, sans-serif;
+            font-size: 1.4rem;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            padding: 20px;
+            max-width: 4.08rem;
+            margin: 0 auto;
+        }
+        
+        .error {
+            height: 2.56rem;
+            background-image: url(img/img_error.png);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            text-align: center;
+            position: relative;
+            left: 0rem;
+            top: 0rem;
+        }
+        
+        .error p {
+            font-size: 0.3rem;
+            position: absolute;
+            top: 0.8rem;
+            width: 70%;
+        }
+    </style>
+    <script type="text/javascript">
+        ! function() {
+            var cw = document.documentElement.clientWidth || document.body.clientWidth;
+            cw = cw > 408 ? 408 : cw;
+            var zoom = cw / 204;
+            document.write('<style id="htmlzoom">html{font-size:' + (zoom * 50) + 'px;}</style>');
+            window.addEventListener(
+                'resize',
+                function() {
+                    cw = document.documentElement.clientWidth || document.body.clientWidth;
+                    if (cw > 408)
+                        cw = 408;
+                    zoom = cw / 204;
+                    document.getElementById('htmlzoom').innerHTML = 'html{font-size:' + (zoom * 50) + 'px;}';
+                });
+        }();
+    </script>
+</head>
+
+<body>
+    <div class="error">
+        <p>
+            <%=error%>
+        </p>
+    </div>
+</body>
+
+</html>

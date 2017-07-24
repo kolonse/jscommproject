@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimal-ui">
+    <title>游戏充值</title>
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/grid-checkbox.css">
+</head>
+
+<body>
+    <div class="content">
+        <div class="userinfo">
+            <h2 class="key">昵称:</h2>
+            <h2 class="value">
+                <%= nickname %>
+            </h2>
+            <div style="clear: both;"></div>
+            <h2 class="key">游戏ID:</h2>
+            <h2 class="value">
+                <%= uid %>
+            </h2>
+            <div style="clear: both;"></div>
+        </div>
+        <div class="tips">
+            <p>小提示:</p>
+            <p>1.购买成功后房卡直接充值到游戏中</p>
+            <p>2.房卡将冲入您当前微信号绑定的游戏帐号,请确认无误</p>
+        </div>
+        <div id="shop">
+            <div class="grid-checkbox" wcount="3" hcount="<% shopinfo.length / 3 %>" style="width:100%;" name="shopid">
+                <% for(var i in shopinfo) {%>
+                    <p name="<%= shopinfo[i].id %>">
+                        <%= shopinfo[i].name %>
+                    </p>
+                    <% } %>
+            </div>
+        </div>
+        <div class="center">
+            <button class="btn block" onclick="onSubmit()">立即充值</button>
+        </div>
+    </div>
+</body>
+<!--<script src="js/config.js"></script>-->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-extent.js"></script>
+<script src="js/uuid.js"></script>
+<script src="js/format.min.js"></script>
+<script src="js/grid-checkbox.js"></script>
+<script>
+    var uid = <%= uid %>;
+    var orderId = "";
+    var payAppId = "<%= payAppId %>";
+
+    function parseQueryString(url) {
+        var str = url.split("?")[1];
+        if (!str) {
+            return {};
+        }
+        var items = str.split("&");
+        var result = {}
+        var arr = [];
+
+        for (var i = 0; i < items.length; i++) {
+            arr = items[i].split('=');
+            result[arr[0]] = arr[1];
+        }
+
+        return result;
+    }
+    var jsapiData = null;
+
+    function onSubmit() {
+        var data = $("#shop").getFormData();
+        data.uid = uid;
+        data.payAppId = payAppId;
+        // location.href = "api/submit?uid=" + uid + "&shopid=" + data.shopid;
+        $.ajax({
+            url: "api/submit",
+            data: data,
+            type: "POST",
+            dataType: 'json',
+            success: function(result) {
+                if (result.code) {
+                    alert(result.message);
+                    return;
+                }
+                jsapiData = result.data;
+                orderId = jsapiData.orderId;
+                delete jsapiData.orderId;
+                // onBridgeReady(result.data);
+                wxRequest();
+            },
+            error: function(err) {
+                alert("服务异常,稍后重试");
+            }
+        });
+    }
+
+    function wxRequest() {
+        if (typeof WeixinJSBridge == "undefined") {
+            if (document.addEventListener) {
+                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+            } else if (document.attachEvent) {
+                document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+            }
+        } else {
+            onBridgeReady();
+        }
+    }
+
+    function onBridgeReady() {
+        WeixinJSBridge.invoke(
+            'getBrandWCPayRequest', jsapiData,
+            function(res) {
+                if (res.err_msg == "get_brand_wcpay_request:ok") {
+                    // alert("订单充值完成");
+                    queryStatus(orderId, 0);
+                    return;
+                }
+                alert("订单充值未成功");
+            }
+        );
+    }
+
+    var orderStatus = {
+        "SUCCESS": "支付成功",
+        "REFUND": "转入退款",
+        "NOTPAY": "未支付",
+        "CLOSED": "已关闭",
+        "REVOKED": "已撤销",
+        "USERPAYING": "用户支付中",
+        "PAYERROR": "支付失败"
+    };
+
+    function queryStatus(id, retryTimes) {
+        setTimeout(function() {
+            if (retryTimes >= 3) { // 查询订单最多重试三次
+                alert("服务业务繁忙,暂时无法查询,稍后会自动发货");
+                return;
+            }
+            $.ajax({
+                url: "api/query",
+                data: {
+                    orderId: id,
+                    payAppId: payAppId
+                },
+                type: "POST",
+                dataType: 'json',
+                success: function(result) {
+                    if (result.code === 0) {
+                        alert(orderStatus[result.data.trade_state]);
+                        return;
+                    }
+                    if (result.code === 50101) { // 50101 表示该订单需要过一段时间在重新请求
+                        queryStatus(id, ++retryTimes);
+                    } else {
+                        alert(result.message);
+                    }
+                },
+                error: function(err) {
+                    alert("服务异常,稍后重试");
+                }
+            });
+        }, 1000);
+    }
+</script>
+
+</html>

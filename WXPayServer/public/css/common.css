@@ -1,0 +1,66 @@
+html {
+    font-family: "Helvetica Neue", Helvetica, STHeiTi, Arial, sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-size: 62.5%;
+}
+
+.content {
+    margin: 0.2rem auto;
+}
+
+@media screen and (max-device-width: 720px) {
+    .content {
+        width: 100%;
+    }
+}
+
+@media screen and (min-device-width: 720px) {
+    .content {
+        width: 7.2rem;
+        min-width: 720px;
+    }
+}
+
+.userinfo {
+    color: black;
+    font-size: 1.5rem;
+}
+
+.userinfo>.key {
+    float: left;
+}
+
+.userinfo>.value {
+    float: left;
+}
+
+.userinfo>h2 {
+    margin: 0.2rem;
+}
+
+.tips {
+    color: red;
+}
+
+.btn {
+    background-color: rgb(28, 179, 148);
+    padding: auto;
+    font-weight: bold;
+    font-size: 3rem;
+    color: white;
+}
+
+.btn:hover {
+    background-color: white;
+    color: black;
+}
+
+.block {
+    width: 80%;
+}
+
+.center {
+    text-align: center;
+    margin-top: 2rem;
+}

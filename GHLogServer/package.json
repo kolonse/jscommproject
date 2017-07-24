@@ -1,0 +1,13 @@
+{
+	"name": "GHLogServer",
+	"version": "0.2.0",
+	"private": false,
+	"dependencies": {
+		"express": "<4.0.0",
+		"stepify":"0.1.5",
+		"ejs": ">=0.0.1",
+		"log4js":"*",
+		"generic-pool":"*",
+		"redis":"*"
+	}
+}

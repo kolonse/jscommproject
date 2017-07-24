@@ -1,0 +1,15 @@
+{
+  "name": "pomelo-admin-web",
+  "version": "0.2.0",
+  "private": false,
+  "dependencies": {
+    "ejs": ">=0.0.1",
+    "express": "<4.0.0",
+    "generic-pool": "*",
+    "ioredis": "^2.5.0",
+    "log4js": "*",
+    "redis": "^2.7.1",
+    "redlock": "^2.1.0",
+    "stepify": "0.1.5"
+  }
+}
