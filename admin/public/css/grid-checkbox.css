@@ -1,0 +1,45 @@
+.grid-checkbox {
+    position: relative;
+    left: 0px;
+    top: 0px;
+}
+
+.grid-checkbox .box {
+    position: absolute;
+    text-align: center;
+    vertical-align: middle;
+    line-height: normal;
+    border-color: #000000;
+    border-style: solid;
+    border-width: 1px;
+    cursor: pointer;
+}
+
+.grid-checkbox>div>div:first-child {
+    display: block;
+}
+
+.grid-checkbox>div>div:nth-child(2) {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+.grid-checkbox>div.selected>div:first-child.selected {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    background: inherit;
+    background: rgba(25, 158, 216, 0.407843137254902);
+    box-sizing: border-box;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgba(25, 158, 216, 1);
+    border-radius: 0px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.grid-checkbox .backup {
+    display: none;
+}

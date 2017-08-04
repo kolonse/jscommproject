@@ -1,0 +1,67 @@
+/**
+ * Created by rootistrator on 2015/11/2.
+ * 后续所有的配置文件都使用该配置文件
+ */
+module.exports = {
+    // 开发环境配置
+    development: {
+        // 是否开启测试平台 默认false,如果是线上环境 必须注意该配置项为false
+        TestPlat: true,
+        db: {
+            fcadmin: {
+                "host": "${MysqlIP}",
+                "port": ${MysqlPort},
+                "user": "${MysqlUser}",
+                "password": "${MysqlPassword}",
+                "database": "fcadmin",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            },
+            fkfish: {
+                "host": "${MysqlIP}",
+                "port": ${MysqlPort},
+                "user": "${MysqlUser}",
+                "password": "${MysqlPassword}",
+                "database": "fkfish",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            },
+            fklogin: {
+                "host": "${MysqlIP}",
+                "port": ${MysqlPort},
+                "user": "${MysqlUser}",
+                "password": "${MysqlPassword}",
+                "database": "fclogin",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 2,
+                "idleTimeoutMillis": 30000
+            },
+            common: {
+                "host": "${MysqlIP}",
+                "port": ${MysqlPort},
+                "user": "${MysqlUser}",
+                "password": "${MysqlPassword}",
+                "database": "common",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            },
+            fcpay: {
+                "host": "${MysqlIP}",
+                "port": ${MysqlPort},
+                "user": "${MysqlUser}",
+                "password": "${MysqlPassword}",
+                "database": "fcpay",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            }
+        },
+        ghlogserver: "http://${LogHost}/exec",
+        amq: "amqp://${AmqHost}",
+        noticeServerUrl: "http://${NoticeServer}/updateNotice/development",
+        sycmessageServerUrl: "http://${NoticeServer}/updateUnTimeCycMsg/development"
+    }
+};

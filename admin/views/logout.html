@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+</head>
+
+<body>
+    <script src="/jquery/jquery.min.js"></script>
+    <script type="application/javascript">
+        function logout() {
+            $.post("/logout", function(result, status, obj) {
+                location.href = "/login.html";
+            });
+        }
+        logout();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>{{title}}</title>
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/metismenu/metisMenu.min.css" rel="stylesheet"/>
+    <link href="/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet"/>
+    <link href="/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet"/>
+    <link href="/css/sb-admin-2.css" rel="stylesheet"/>
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+	<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+    <!--[if IE]>
+	<script>
+        if( window.detachEvent ){
+            var func = window.detachEvent ;
+            window.detachEvent = function(){
+                if(arguments.length === 0){
+                    return ;
+                }else if(arguments.length === 1){
+                    if(arguments instanceof Object){
+                        arguments["1"] = function(){
+                            console.log("test");
+                        }
+                    }else{
+                        arguments.push(function(){
+                            console.log("test");
+                        }); 
+                    }
+                }
+                func(arguments[0],arguments[1]);
+            }
+        }
+    </script>
+<![endif]-->
+    <script type="application/x-javascript">
+        addEventListener("load", function() {
+            setTimeout(hideURLbar, 0);
+        }, false);
+
+        function hideURLbar() {
+            window.scrollTo(0, 1);
+        }
+    </script>
+
+    <link href="/css/k-table.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/admin.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/grid-checkbox.css" rel="stylesheet"/>
+    <script src="/jquery/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0;">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand phone-show" onclick="javascript:history.go(-1);"></a>
+                <a class="navbar-brand pc-show" href="index.html">{{title}} <span class="version">{{version}}</span></a>
+            </div>
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav metismenu" id="side-menu">
+                        <template v-for="item in sidebar">
+                            <li v-if="item.isleaf === true">
+                                <a href="/{{item.id}}.html" id="menu-leaf-{{item.id}}">{{item.name}}</a>
+                            </li>
+                            <li v-else="">
+                                <a href="#">{{item.name}}<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <template v-for="item2 in item.node">
+                                        <li v-if="item2.isleaf === true">
+                                            <a href="/{{item.id}}/{{item2.id}}.html" id="menu-leaf-{{item2.id}}">{{item2.name}}</a>
+                                        </li>
+                                        <li v-else="">
+                                            <a href="#">{{item2.name}}<span class="fa arrow"></span></a>
+                                            <ul class="nav nav-third-level">
+                                                <template v-for="item3 in item2.node">
+                                                    <li v-if="{{item3.isleaf === true}}">
+                                                        <a href="/{{item.id}}/{{item2.id}}/{{item3.id}}.html" id="menu-leaf-{{item3.id}}">{{item3.name}}</a>
+                                                    </li>
+                                                </template>
+                    </ul>
+                    </li>
+                    </template>
+                    </ul>
+                    </li>
+                    </template>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="nav navbar-top-links navbar-right">
+                <a href="javascript:void(0)">{{ username }} |</a>
+                <a onclick="updateAdminPassword()">修改密码 |</a>
+                <a onclick="logout()"><i class="fa fa-sign-out fa-fw"></i> 退出</a>
+            </div>
+        </nav>
+        <div id="page-wrapper">
+            <div class="panel panel-yellow">
+                <div class="panel-heading">
+                    会员数据表
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div style="width:100%;">
+                        <div style="text-align:right;">
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#adminunfreeze" onclick="setProperty(&#39;adminunfreeze&#39;)">帐号解封</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#addadmin">新增管理员</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#authadjust" onclick="setProperty(&#39;authadjust&#39;)">权限调整</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#deleteadmin" onclick="setProperty(&#39;deleteadmin&#39;)">删除管理员</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#resetadminpassword" onclick="setProperty(&#39;resetadminpassword&#39;)">重置密码</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <table class="table table-striped table-bordered table-hover" id="player-data" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>帐号ID</th>
+                                <th>登录帐号</th>
+                                <th>权限等级</th>
+                                <th>创建者</th>
+                                <th>创建时间</th>
+                                <th>状态</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal fade" id="adminunfreeze" tabindex="-1" role="dialog" aria-labelledby="adminunfreezeLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">解冻管理员</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>管理员ID:</label>
+                                    <input type="number" class="form-control" name="id" disabled=""/>
+                                </div>
+                                <div style="text-align: center;">
+                                    <h3>确定要解冻该用户?</h3>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="adminunfreeze-submit" onclick="modalSubmit(&#39;adminunfreeze&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="addadmin" tabindex="-1" role="dialog" aria-labelledby="addadminLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">增加管理员</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>账户名称:</label>
+                                    <input type="text" class="form-control" name="username"/>
+                                </div>
+                                <div class="form-group">
+                                    <div class="k-singleselect-buttons" name="power" label="管理权限:"></div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>备注信息:</label>
+                                    <textarea class="form-control" name="remark" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="addadmin-submit" onclick="modalSubmit(&#39;addadmin&#39;,true)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="authadjust" tabindex="-1" role="dialog" aria-labelledby="authadjustLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">权限调整</h2>
+                            </div>
+                            <div class="modal-body auth" id="auth" name="auth">
+                                <div class="checkbox">
+                                    <input type="checkbox" class="form-control" name="systemmanager"/>
+                                    <label>系统管理</label>
+                                </div>
+                                <div class="first">
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="systemsetting"/>
+                                        <label>系统设置</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="gamesetting"/>
+                                        <label>游戏设置</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="usermanager"/>
+                                        <label>用户管理</label>
+                                    </div>
+                                    <div class="second">
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="query"/>
+                                            <label>查询</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="adminunfreeze"/>
+                                            <label>账号解封</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="addadmin"/>
+                                            <label>新增管理员</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="authadjust"/>
+                                            <label>权限调整</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="deleteadmin"/>
+                                            <label>删除管理员</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="resetadminpassword"/>
+                                            <label>重置密码</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearinline"></div>
+                                <div class="checkbox">
+                                    <input type="checkbox" class="form-control" name="vipmanager"/>
+                                    <label>会员管理</label>
+                                </div>
+                                <div class="first">
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="proxymanager"/>
+                                        <label>代理管理</label>
+                                    </div>
+                                    <div class="second">
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="query"/>
+                                            <label>查询</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="addProxy"/>
+                                            <label>新增代理</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="resetPassword"/>
+                                            <label>重置密码</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="freeze"/>
+                                            <label>禁用</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="unfreeze"/>
+                                            <label>解禁</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="addunionmaxcount"/>
+                                            <label>修改工会数量</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="resetSharing"/>
+                                            <label>调整分成</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="modify"/>
+                                            <label>修改资料</label>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="labourunion"/>
+                                        <label>工会管理</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="unionermanager"/>
+                                        <label>正/副会长管理</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="playermanager"/>
+                                        <label>玩家管理</label>
+                                    </div>
+                                    <div class="second">
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="query"/>
+                                            <label>查询</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="playerfreeze"/>
+                                            <label>封号</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="playerunfreeze"/>
+                                            <label>解禁</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="increasecard"/>
+                                            <label>赠送房卡</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="reducecard"/>
+                                            <label>扣除房卡</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="changepromoter"/>
+                                            <label>更换绑定</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearinline"></div>
+                                <div class="checkbox">
+                                    <input type="checkbox" class="form-control" name="gameparam"/>
+                                    <label>一般运作</label>
+                                </div>
+                                <div class="first">
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="hallmanager"/>
+                                        <label>大厅管理</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="gamenotice"/>
+                                        <label>游戏公告</label>
+                                    </div>
+                                    <div class="second">
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="query"/>
+                                            <label>查询</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="closenotice"/>
+                                            <label>关闭公告</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="gamenotice"/>
+                                            <label>新建公告</label>
+                                        </div>
+                                    </div>
+                                    <div class="clearinline"></div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="syclemessage"/>
+                                        <label>滚动消息</label>
+                                    </div>
+                                    <div class="second">
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="query"/>
+                                            <label>查询</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="closesyclemessage"/>
+                                            <label>关闭循环消息</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <input type="checkbox" class="form-control" name="syclemessage"/>
+                                            <label>新建循环消息</label>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="militaryexploitsquery"/>
+                                        <label>战绩查询</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="orderSubmit"/>
+                                        <label>玩家补单</label>
+                                    </div>
+                                </div>
+                                <div class="clearinline"></div>
+                                <div class="checkbox">
+                                    <input type="checkbox" class="form-control" name="incomeanalysis"/>
+                                    <label>运营分析</label>
+                                </div>
+                                <div class="first">
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="pay"/>
+                                        <label>充值订单</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <input type="checkbox" class="form-control" name="issueorder"/>
+                                        <label>补单记录</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="authadjust-submit" onclick="modalSubmit(&#39;authadjust&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="deleteadmin" tabindex="-1" role="dialog" aria-labelledby="deleteadminLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">删除管理员</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>管理员id:</label>
+                                    <input type="number" class="form-control" name="id" disabled=""/>
+                                </div>
+                                <div class="center">
+                                    <h3>是否删除该管理员账号？</h3>
+                                    <h3>（删除后该账户无法正常登录管理后台）</h3>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="deleteadmin-submit" onclick="modalSubmit(&#39;deleteadmin&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="resetadminpassword" tabindex="-1" role="dialog" aria-labelledby="resetadminpasswordLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">修改绑定人</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>管理员id:</label>
+                                    <input type="number" class="form-control" name="id" disabled=""/>
+                                </div>
+                                <div class="center">
+                                    <h3>是否重置该管理员账号？</h3>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="resetadminpassword-submit" onclick="modalSubmit(&#39;resetadminpassword&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+            </div>
+            <script src="/vendor/datatables/js/jquery.dataTables.min.js"></script>
+            <script src="/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
+            <script src="/vendor/datatables-responsive/dataTables.responsive.js"></script>
+            <script src="/js/usermanager/table.js" defer="defer"></script>
+            <script src="/js/usermanager/button.js"></script>
+        </div>
+        <div class="modal fade" id="updatepassword" tabindex="-1" role="dialog" aria-labelledby="updatepasswordLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h2 class="modal-title">修改密码</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group" style="padding-left: 15px;">
+                            <label>原始密码:</label>
+                            <input type="srcpassword" class="form-control" name="srcpassword" maxlength="18" minlength="6" required=""/>
+                        </div>
+                        <div class="form-group" style="padding-left: 15px;">
+                            <label>新的密码(密码长度在6~18位):</label>
+                            <input type="password" class="form-control" name="password" maxlength="18" minlength="6" required=""/>
+                        </div>
+                        <div class="form-group" style="padding-left: 15px;">
+                            <label>确认密码:</label>
+                            <input type="password" class="form-control" name="password2" maxlength="18" minlength="6" required=""/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="updatepassword-submit" onclick="updatepassword()">保存</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/js/browser.js"></script>
+    <script type="text/javascript" src="/js/moment-2.2.1.js"></script>
+    <script type="text/javascript" src="/js/vue.min.js"></script>
+    <script src="/config/config.js" nomerge="nomerge"></script>
+    <script src="/js/jquery-extent.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/metismenu/metisMenu.min.js"></script>
+    <script src="/js/load.js"></script>
+    <script src="/js/sb-admin-2.js"></script>
+    <script src="/config/data-config.js"></script>
+    <script src="/js/uuid.js"></script>
+    <script src="/js/format.min.js"></script>
+    <script src="/js/k-select.js"></script>
+    <script src="/js/k-singleselect-buttons.js"></script>
+    <script src="/js/inline-muti-checkbox.js"></script>
+    <script src="/js/grid-checkbox.js"></script>
+    <script src="/js/default-value-set.js"></script>
+    <script src="/js/save-config.js"></script>
+    <script src="/js/submit-data.js"></script>
+    <script src="/js/status-notice.js"></script>
+    <script>
+        function fail(code, message) {
+            if (code === 10101) {
+                location.href = "/login.html";
+                return;
+            }
+            alert("code:" + code + ",err:" + message);
+        }
+
+        function logout() {
+            $.post("/logout", function(result, status, obj) {
+                location.href = "/login.html";
+            });
+        }
+
+        function updateAdminPassword() {
+            $("#updatepassword").modal("show");
+        }
+
+        function updatepassword() {
+            var data = $("#updatepassword").getFormData();
+
+            if (data.password.length < 6 || data.password.length > 18) {
+                alert("密码长度在 6 ~ 18 之间");
+                return;
+            }
+
+            if (data.password !== data.password2) {
+                alert("2次密码不相同");
+                return;
+            }
+
+            if (data.password === data.srcpassword) {
+                alert("原始密码和新密码不能相同");
+                return;
+            }
+            var param = {
+                data: data
+            };
+            $.post("/submitData/updateSelfPassword", param, function(result, status, obj) {
+                if (status === "success") {
+                    if (result.code !== 0) {
+                        fail(result.code, result.message);
+                        return;
+                    }
+                    $("#updatepassword").modal("hide");
+                } else {
+                    fail(-1, "服务异常");
+                }
+            });
+        }
+    </script>
+
+
+</body></html>

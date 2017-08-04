@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+        <script src="js/Chart.js"></script>
+		<title></title>
+        <style type="text/css">
+            .bottom{
+                position: absolute;
+                left:0px;
+                top:0px;    
+                width:100px; 
+                height:100px; 
+                background-color:#ffa; 
+                -webkit-border-radius: 50%;
+                border-radius:50%;
+                
+                z-index: 0;
+            }
+            .empty{
+                position: relative;
+                left:10px;
+                top:10px;    
+                /*圆的直径为 100 半径为 50*/            
+                width:100px; 
+                height:100px; 
+                background-color:#ffa; 
+                -webkit-border-radius: 50%;
+                border-radius:50%;   
+                overflow: hidden;   
+                z-index: 10;             
+            }
+            .map{
+                position: absolute;
+                left:0px;
+                bottom:0px;                
+                width:100px; 
+                height:0px; 
+                background-color:#F00; 
+                overflow: hidden;            
+                z-index: 0;
+            }
+        </style>
+	</head>
+	<body>
+        <div class="empty">
+            <div class="bottom"></div>
+            <div class="map"></div>
+        </div>
+        <p id="rate"></p>
+        <div>
+            <p>变化角度与面积关系</p>
+            <canvas id="area" height="800" width="800" style="width: 800px; height: 800px;"></canvas>        
+        </div>
+        <div>
+            <p>变化角度与高度关系</p>
+            <canvas id="hight" height="800" width="800" style="width: 800px; height: 800px;"></canvas>        
+        </div>
+
+	</body>
+	<script>
+        // 假设注入水速度为 1000/s  
+        var s = 2000;
+        // 圆的半径为实际半径
+        var r = 100 ;
+
+        $(".bottom").width(2*r + "px");
+        $(".bottom").height(2*r + "px");
+
+        $(".empty").width(2*r + "px");
+        $(".empty").height(2*r + "px");
+
+        $(".map").width(2*r + "px");
+        // $(".bottom").height(2*r + "px");  
+
+        // 生成数据点集 角度与面积的关系点集合 角度每个单位是 0.01~6.18(2*π),为了方便计算,数组的每一位下标表示角度 x*100;
+        var sarr = [] ;
+        var labels = [];
+        var hight = [];
+        for(var i = 0;i <= 618;i ++){
+            var x = i / 100.0;
+            var si = x * r * r / 2 - r * r * Math.sin(x) / 2;
+            sarr.push(si);
+            labels.push(i);
+            hight.push(r - r * Math.cos(x / 2));
+        }
+        var lineChartData = {
+            labels : labels,
+            datasets : [
+                {
+                    fillColor : "#00aced",
+                    strokeColor : "#00aced",
+                    pointColor : "#00aced",
+                    pointStrokeColor : "#fff",
+                    data : sarr
+                }
+            ]
+        };
+        var hi = {
+            labels : labels,
+            datasets : [
+                {
+                    fillColor : "#00aced",
+                    strokeColor : "#00aced",
+                    pointColor : "#00aced",
+                    pointStrokeColor : "#fff",
+                    data : hight
+                }
+            ]
+        };
+        new Chart(document.getElementById("area").getContext("2d")).Line(lineChartData);
+        new Chart(document.getElementById("hight").getContext("2d")).Line(hi);
+        // 每次注水变化的高度为
+        var h = 0;
+        var t = 0;
+        // 刷新帧时间
+        var ct = 41 ;
+        var timer = null ;
+        
+        timer = setInterval(function(){
+            t += ct ;
+            // 此时的面积
+            var cs = s * t / 1000;
+            var rad = 0;
+            console.log(cs);
+            for(var j = 0;j < sarr.length;j ++){
+                rad = j;
+                if(cs < sarr[j]){
+                    break;
+                }    
+            }
+            // 此时的角度为 j
+            // 计算出此时的高度  这里的公式是 h1 = r - r*cos(rad/(2*100)), 乘以100是因为角度是以 x*100算的所以要除掉
+            var h1 = r - r * Math.cos(rad / 200);
+            console.log(rad,h1)
+            $(".map").css("height",h1); 
+            $("#rate").text("当前占比:" + sarr[rad] / (3.14 * r * r))              
+            if(rad >= sarr.length - 1){
+                clearInterval(timer);
+                return ;
+            }
+        },ct);
+        
+	</script>
+</html>

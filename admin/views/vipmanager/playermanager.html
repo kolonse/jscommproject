@@ -1,0 +1,518 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>{{title}}</title>
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/metismenu/metisMenu.min.css" rel="stylesheet"/>
+    <link href="/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet"/>
+    <link href="/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet"/>
+    <link href="/css/sb-admin-2.css" rel="stylesheet"/>
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+	<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+    <!--[if IE]>
+	<script>
+        if( window.detachEvent ){
+            var func = window.detachEvent ;
+            window.detachEvent = function(){
+                if(arguments.length === 0){
+                    return ;
+                }else if(arguments.length === 1){
+                    if(arguments instanceof Object){
+                        arguments["1"] = function(){
+                            console.log("test");
+                        }
+                    }else{
+                        arguments.push(function(){
+                            console.log("test");
+                        }); 
+                    }
+                }
+                func(arguments[0],arguments[1]);
+            }
+        }
+    </script>
+<![endif]-->
+    <script type="application/x-javascript">
+        addEventListener("load", function() {
+            setTimeout(hideURLbar, 0);
+        }, false);
+
+        function hideURLbar() {
+            window.scrollTo(0, 1);
+        }
+    </script>
+
+    <link href="/css/k-table.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/admin.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/grid-checkbox.css" rel="stylesheet"/>
+    <script src="/jquery/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0;">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand phone-show" onclick="javascript:history.go(-1);"></a>
+                <a class="navbar-brand pc-show" href="index.html">{{title}} <span class="version">{{version}}</span></a>
+            </div>
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav metismenu" id="side-menu">
+                        <template v-for="item in sidebar">
+                            <li v-if="item.isleaf === true">
+                                <a href="/{{item.id}}.html" id="menu-leaf-{{item.id}}">{{item.name}}</a>
+                            </li>
+                            <li v-else="">
+                                <a href="#">{{item.name}}<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <template v-for="item2 in item.node">
+                                        <li v-if="item2.isleaf === true">
+                                            <a href="/{{item.id}}/{{item2.id}}.html" id="menu-leaf-{{item2.id}}">{{item2.name}}</a>
+                                        </li>
+                                        <li v-else="">
+                                            <a href="#">{{item2.name}}<span class="fa arrow"></span></a>
+                                            <ul class="nav nav-third-level">
+                                                <template v-for="item3 in item2.node">
+                                                    <li v-if="{{item3.isleaf === true}}">
+                                                        <a href="/{{item.id}}/{{item2.id}}/{{item3.id}}.html" id="menu-leaf-{{item3.id}}">{{item3.name}}</a>
+                                                    </li>
+                                                </template>
+                    </ul>
+                    </li>
+                    </template>
+                    </ul>
+                    </li>
+                    </template>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="nav navbar-top-links navbar-right">
+                <a href="javascript:void(0)">{{ username }} |</a>
+                <a onclick="updateAdminPassword()">修改密码 |</a>
+                <a onclick="logout()"><i class="fa fa-sign-out fa-fw"></i> 退出</a>
+            </div>
+        </nav>
+        <div id="page-wrapper">
+            <div class="panel panel-yellow">
+                <div class="panel-heading">
+                    会员数据表
+                </div>
+                <p style="font-size: 15px;color: red;">注意:对玩家进行操作的数据如果没有提示错误信息那么就表示操作成功,需要等待一段时间后数据才会刷新</p>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div style="width:100%;">
+                        <div style="text-align:left;" id="player-filter" class="col-sm-4">
+                            <div class="form-group" style="float: left;">
+                                <label>用户ID:</label>
+                                <input type="number" name="uid" placeholder="输入用户ID 查询"/>
+                            </div>
+                            <button type="button" class="btn btn-default" onclick="proxyData.ajax.reload();" style="height: 26px;padding: 3px;margin-left: 5px;">查询</button>
+                        </div>
+                        <div style="text-align:right;" class="col-sm-8">
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#playerfreeze" onclick="setProperty(&#39;playerfreeze&#39;)">封号</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#playerunfreeze" onclick="setProperty(&#39;playerunfreeze&#39;)">解禁</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#increasecard" onclick="setProperty(&#39;increasecard&#39;)">赠送房卡</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#reducecard" onclick="setProperty(&#39;reducecard&#39;)">扣除房卡</button>
+                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#changepromoter" onclick="setProperty(&#39;changepromoter&#39;)">更换绑定</button>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <table class="table table-striped table-bordered table-hover" id="player-data" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>玩家ID</th>
+                                <th>玩家昵称</th>
+                                <th>房卡数量</th>
+                                <th>金币数量</th>
+                                <th>充值总额</th>
+                                <th>VIP等级</th>
+                                <th>所属正副会长</th>
+                                <th>所属工会</th>
+                                <th>当前状态</th>
+                                <th>注册时间</th>
+                                <th>最近登录时间</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal fade" id="playerfreeze" tabindex="-1" role="dialog" aria-labelledby="playerfreezeLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">冻结玩家</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>玩家id:</label>
+                                    <input type="number" class="form-control" name="uid" disabled=""/>
+                                </div>
+                                <div style="text-align: center;">
+                                    <h3>确定要冻结该玩家?</h3>
+                                    <h3>（冻结后该玩家无法登录游戏）</h3>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="playerfreeze-submit" onclick="modalSubmit(&#39;playerfreeze&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="playerunfreeze" tabindex="-1" role="dialog" aria-labelledby="playerunfreezeLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">解冻玩家</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>玩家id:</label>
+                                    <input type="number" class="form-control" name="uid" disabled=""/>
+                                </div>
+                                <div style="text-align: center;">
+                                    <h3>确定要解冻该玩家?</h3>
+                                    <h3>（解冻后该玩家将会正常登录游戏）</h3>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="playerfreeze-submit" onclick="modalSubmit(&#39;playerunfreeze&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="increasecard" tabindex="-1" role="dialog" aria-labelledby="increasecardLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">增加房卡</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>玩家id:</label>
+                                    <input type="number" class="form-control" name="uid" disabled=""/>
+                                </div>
+                                <div class="form-group">
+                                    <label>增加数量:</label>
+                                    <input type="number" class="form-control" name="addcardcount"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="playerfreeze-submit" onclick="modalSubmit(&#39;increasecard&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="reducecard" tabindex="-1" role="dialog" aria-labelledby="reducecardLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">减少房卡</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>玩家id:</label>
+                                    <input type="number" class="form-control" name="uid" disabled=""/>
+                                </div>
+                                <div class="form-group">
+                                    <label>减少数量:</label>
+                                    <input type="number" class="form-control" name="reducecardcount"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="playerfreeze-submit" onclick="modalSubmit(&#39;reducecard&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <div class="modal fade" id="changepromoter" tabindex="-1" role="dialog" aria-labelledby="changepromoterLabel" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h2 class="modal-title">修改绑定人</h2>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>玩家id:</label>
+                                    <input type="number" class="form-control" name="uid" disabled=""/>
+                                </div>
+                                <div class="form-group">
+                                    <label>原绑定人id:</label>
+                                    <input type="number" class="form-control" name="leader" disabled=""/>
+                                </div>
+                                <div class="form -group">
+                                    <label>新绑定人id:</label>
+                                    <input type="number" class="form-control" name="newleader"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" id="playerfreeze-submit" onclick="modalSubmit(&#39;changepromoter&#39;)">保存</button>
+                            </div>
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+            </div>
+            <div class="panel panel-green">
+                <div class="panel-heading">
+                    数据透视图
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#chargerecord" data-toggle="tab" onclick="tabToggle(&#39;chargerecord&#39;)">充值记录</a>
+                        </li>
+                        <li><a href="#giverecord" data-toggle="tab" onclick="tabToggle(&#39;giverecord&#39;)">赠送记录</a>
+                        </li>
+                        <li><a href="#receiverecord" data-toggle="tab" onclick="tabToggle(&#39;receiverecord&#39;)">接收记录</a>
+                        </li>
+                        <li><a href="#reducerecord" data-toggle="tab" onclick="tabToggle(&#39;reducerecord&#39;)">扣除记录</a>
+                        </li>
+                        <li><a href="#historyrecord" data-toggle="tab" onclick="tabToggle(&#39;historyrecord&#39;)">历史战绩</a>
+                        </li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content" style="min-height:350px;" id="tabs">
+                        <div class="tab-pane fade active in" id="chargerecord">
+                            <div style="margin-top:5px;padding:2px" id="datetime-chargerecord" class="datetime">
+                                <span>时间范围:</span>
+                                <input type="datetime-local" name="from"/>
+                                <input type="datetime-local" name="to"/>
+                                <button onclick="loadData(&#39;chargerecord&#39;)">刷新</button>
+                            </div>
+                            <table class="table table-striped table-bordered table-hover" id="table-chargerecord" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>充值时间</th>
+                                        <th>充值类型</th>
+                                        <th>充值商品</th>
+                                        <th>充值额度</th>
+                                        <th>充值数量</th>
+                                        <th>房卡数量</th>
+                                        <th>VIP等级</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="giverecord">
+                            <div style="margin-top:5px;padding:2px" id="datetime-giverecord" class="datetime">
+                                <span>时间范围:</span>
+                                <input type="datetime-local" name="from"/>
+                                <input type="datetime-local" name="to"/>
+                                <button onclick="loadData(&#39;giverecord&#39;)">刷新</button>
+                            </div>
+                            <table class="table table-striped table-bordered table-hover" id="table-giverecord" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>赠送时间</th>
+                                        <th>接收人昵称</th>
+                                        <th>接收人ID</th>
+                                        <th>赠送数量</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="receiverecord">
+                            <div style="margin-top:5px;padding:2px" id="datetime-receiverecord" class="datetime">
+                                <span>时间范围:</span>
+                                <input type="datetime-local" name="from"/>
+                                <input type="datetime-local" name="to"/>
+                                <button onclick="loadData(&#39;receiverecord&#39;)">刷新</button>
+                            </div>
+                            <table class="table table-striped table-bordered table-hover" id="table-receiverecord" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>赠送时间</th>
+                                        <th>赠送人昵称</th>
+                                        <th>赠送人ID</th>
+                                        <th>赠送数量</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="reducerecord">
+                            <div style="margin-top:5px;padding:2px" id="datetime-reducerecord" class="datetime">
+                                <span>时间范围:</span>
+                                <input type="datetime-local" name="from"/>
+                                <input type="datetime-local" name="to"/>
+                                <button onclick="loadData(&#39;reducerecord&#39;)">刷新</button>
+                            </div>
+                            <table class="table table-striped table-bordered table-hover" id="table-reducerecord" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>扣除时间</th>
+                                        <th>扣除数量</th>
+                                        <th>备注</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="historyrecord">
+                            <div style="margin-top:5px;padding:2px" id="datetime-historyrecord" class="datetime">
+                                <span>时间范围:</span>
+                                <input type="datetime-local" name="from"/>
+                                <input type="datetime-local" name="to"/>
+                                <button onclick="loadData(&#39;historyrecord&#39;)">刷新</button>
+                            </div>
+                            <table class="table table-striped table-bordered table-hover" id="table-historyrecord" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>房间号</th>
+                                        <th>炮值</th>
+                                        <th>子弹</th>
+                                        <th>人数</th>
+                                        <th>局数</th>
+                                        <th>开始时间</th>
+                                        <th>结束时间</th>
+                                        <th>房主id</th>
+                                        <th>游戏结果</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script src="/vendor/datatables/js/jquery.dataTables.min.js"></script>
+            <script src="/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
+            <script src="/vendor/datatables-responsive/dataTables.responsive.js"></script>
+            <script src="/js/playermanager/table.js" defer="defer"></script>
+            <script src="/js/playermanager/button.js"></script>
+        </div>
+        <div class="modal fade" id="updatepassword" tabindex="-1" role="dialog" aria-labelledby="updatepasswordLabel" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h2 class="modal-title">修改密码</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group" style="padding-left: 15px;">
+                            <label>原始密码:</label>
+                            <input type="srcpassword" class="form-control" name="srcpassword" maxlength="18" minlength="6" required=""/>
+                        </div>
+                        <div class="form-group" style="padding-left: 15px;">
+                            <label>新的密码(密码长度在6~18位):</label>
+                            <input type="password" class="form-control" name="password" maxlength="18" minlength="6" required=""/>
+                        </div>
+                        <div class="form-group" style="padding-left: 15px;">
+                            <label>确认密码:</label>
+                            <input type="password" class="form-control" name="password2" maxlength="18" minlength="6" required=""/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="updatepassword-submit" onclick="updatepassword()">保存</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/js/browser.js"></script>
+    <script type="text/javascript" src="/js/moment-2.2.1.js"></script>
+    <script type="text/javascript" src="/js/vue.min.js"></script>
+    <script src="/config/config.js" nomerge="nomerge"></script>
+    <script src="/js/jquery-extent.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/metismenu/metisMenu.min.js"></script>
+    <script src="/js/load.js"></script>
+    <script src="/js/sb-admin-2.js"></script>
+    <script src="/config/data-config.js"></script>
+    <script src="/js/uuid.js"></script>
+    <script src="/js/format.min.js"></script>
+    <script src="/js/k-select.js"></script>
+    <script src="/js/k-singleselect-buttons.js"></script>
+    <script src="/js/inline-muti-checkbox.js"></script>
+    <script src="/js/grid-checkbox.js"></script>
+    <script src="/js/default-value-set.js"></script>
+    <script src="/js/save-config.js"></script>
+    <script src="/js/submit-data.js"></script>
+    <script src="/js/status-notice.js"></script>
+    <script>
+        function fail(code, message) {
+            if (code === 10101) {
+                location.href = "/login.html";
+                return;
+            }
+            alert("code:" + code + ",err:" + message);
+        }
+
+        function logout() {
+            $.post("/logout", function(result, status, obj) {
+                location.href = "/login.html";
+            });
+        }
+
+        function updateAdminPassword() {
+            $("#updatepassword").modal("show");
+        }
+
+        function updatepassword() {
+            var data = $("#updatepassword").getFormData();
+
+            if (data.password.length < 6 || data.password.length > 18) {
+                alert("密码长度在 6 ~ 18 之间");
+                return;
+            }
+
+            if (data.password !== data.password2) {
+                alert("2次密码不相同");
+                return;
+            }
+
+            if (data.password === data.srcpassword) {
+                alert("原始密码和新密码不能相同");
+                return;
+            }
+            var param = {
+                data: data
+            };
+            $.post("/submitData/updateSelfPassword", param, function(result, status, obj) {
+                if (status === "success") {
+                    if (result.code !== 0) {
+                        fail(result.code, result.message);
+                        return;
+                    }
+                    $("#updatepassword").modal("hide");
+                } else {
+                    fail(-1, "服务异常");
+                }
+            });
+        }
+    </script>
+
+
+</body></html>

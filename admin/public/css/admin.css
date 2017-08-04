@@ -1,0 +1,231 @@
+.phone-show {
+    display: inherit;
+}
+
+.pc-show {
+    display: none;
+}
+
+@media(min-width:768px) {
+    .phone-show {
+        display: none;
+    }
+    .pc-show {
+        display: inherit;
+    }
+}
+
+tr {
+    cursor: pointer;
+}
+
+tr.selected td {
+    background-color: #dff0d8
+}
+
+.error-tip {
+    color: red;
+    display: none;
+}
+
+.error-tip-show {
+    display: block;
+}
+
+.must:before {
+    display: inline-block !important;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: red !important;
+    content: "\f069" !important;
+}
+
+@media(max-width:768px) {
+    .navbar-collapse {
+        display: none;
+    }
+    .navbar {
+        width: 100%;
+        position: fixed;
+    }
+}
+
+.newnotice:after {
+    display: inline-block !important;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: red !important;
+    content: "\f069" !important;
+}
+
+#auth input[type=checkbox] {
+    margin-left: 0px !important;
+    height: auto !important;
+    width: auto !important;
+}
+
+
+/*#auth .first {
+    display: block;
+    width: auto;
+}*/
+
+#auth>.checkbox>label {
+    font-weight: bold;
+}
+
+#auth .first {
+    display: block;
+    width: auto;
+    /*margin-left: 10px;*/
+}
+
+#auth .second {
+    display: block;
+    width: auto;
+    margin-left: 20px;
+}
+
+
+/*#auth>.first>.checkbox>input[type=checkbox] {
+    margin-left: 0px !important;
+    height: auto !important;
+    width: auto !important;
+}*/
+
+#auth .auth-inline {
+    display: inline-table;
+}
+
+#auth .clearinline {
+    display: block;
+}
+
+#auth .disable {
+    display: none;
+}
+
+.k-singleselect-buttons.left>label {
+    text-align: left;
+    width: auto;
+}
+
+.k-singleselect-buttons>div>label {
+    border-color: rgb(118, 134, 145);
+    min-width: 150px;
+}
+
+label {
+    color: rgb(121, 121, 121) !important;
+}
+
+select {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    color: rgb(121, 121, 121) !important;
+    font-weight: 600 !important;
+    background: url("/vendor/images/arrow-down.png") no-repeat scroll right center transparent !important;
+    padding: 0px 20px !important;
+    height: 22px !important;
+    min-width: 150px;
+}
+
+select::-ms-expand {
+    display: none;
+}
+
+.k-singleselect-buttons label {
+    padding-right: 10px;
+}
+
+.k-singleselect-buttons>div>label {
+    color: white !important;
+    font-weight: 700;
+}
+
+.k-singleselect-buttons-tabContent {
+    background-color: rgb(237, 244, 246);
+    min-height: 170px;
+}
+
+.k-singleselect-buttons-tabContent .k-singleselect-buttons-tab-pane {
+    margin-top: 10px;
+}
+
+.k-singleselect-buttons-tab-pane div.input-group {
+    width: 100%;
+}
+
+.k-singleselect-buttons div.btn-group label {
+    background-color: rgb(169, 186, 197);
+}
+
+.k-singleselect-buttons div.btn-group label.active {
+    background-color: rgb(105, 194, 207);
+}
+
+.k-singleselect-buttons-tabContent {
+    margin-top: 20px;
+}
+
+input.form-control {
+    background-color: rgb(224, 232, 232);
+    border-radius: 5px !important;
+}
+
+.input-group-addon {
+    background-color: rgb(192, 199, 199);
+}
+
+.input-group-addon>input[type=checkbox] {
+    background-color: rgb(179, 186, 186);
+}
+
+.k-inline-muti-checkbox label.checkbox-inline {
+    min-width: 100px;
+}
+
+div.k-option {
+    /*padding-top: 10px;*/
+    padding-bottom: 5px;
+    padding-left: 0px;
+}
+
+div.k-option label {
+    padding-right: 10px;
+}
+
+div.k-inline-muti-checkbox {
+    padding-top: 10px;
+    padding-bottom: 5px;
+    padding-left: 0px;
+}
+
+div.left .dataTables_paginate {
+    text-align: left;
+}
+
+div.k-option.align {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+div.k-option.align>label {
+    text-align: right;
+    width: 41.66666667%;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+div.k-option.align>div {
+    width: 58.33333333%;
+    padding-right: 15px;
+    padding-left: 15px;
+}

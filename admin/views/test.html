@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+		<title></title>
+	</head>
+	<body>
+		<table width="100%" border="1px">
+			<colgroup>
+				<col style="width:50px;" />
+				<col style="width:100px;" />
+				<col style="width:150px;" />
+			</colgroup>
+			<thead>
+				<tr>
+					<th>ISBN</th>
+					<th>Title</th>
+					<th>Price</th>
+				</tr>				
+			</thead>
+			<tbody>
+				<tr>
+					<td>3476896</td>
+					<td>My first HTML</td>
+					<td>$53</td>
+				</tr>	
+			</tbody>
+			<tfoot>
+				<tr>
+					<td>11111</td>
+					<td>fdsafsdf</td>
+					<td>1323</td>
+				</tr>	
+			</tfoot>			
+		</table>
+	</body>
+	<script>
+		$("colgroup").children("col").each(function(i,o){
+			console.log($(o).css("width"));
+		})
+		
+		
+		$("table").each(function(i,o){
+			var hArr = [];
+			$(o).children("colgroup").children().each(function(i,o){
+				hArr.push($(o).width())
+			})
+			$(o).children("tfoot").children().children().each(function(i,o){
+				$(o).width(hArr[i]);
+			})			
+		})
+		//console.log(encodeURIComponent("https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf0e81c3bee622d60&redirect_uri=http%3A%2F%2Fnba.bluewebgame.com%2Foauth_response.php&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect"))
+	</script>
+	<style>
+	</style>
+</html>

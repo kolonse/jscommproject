@@ -1,0 +1,67 @@
+/**
+ * Created by rootistrator on 2015/11/2.
+ * 后续所有的配置文件都使用该配置文件
+ */
+module.exports = {
+    // 开发环境配置
+    development: {
+        // 是否开启测试平台 默认false,如果是线上环境 必须注意该配置项为false
+        TestPlat: true,
+        db: {
+            fcadmin: {
+                "host": "127.0.0.1",
+                "port": ,
+                "user": "admin",
+                "password": "123456",
+                "database": "fcadmin",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            },
+            fkfish: {
+                "host": "127.0.0.1",
+                "port": ,
+                "user": "admin",
+                "password": "123456",
+                "database": "fkfish",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            },
+            fklogin: {
+                "host": "127.0.0.1",
+                "port": ,
+                "user": "admin",
+                "password": "123456",
+                "database": "fclogin",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 2,
+                "idleTimeoutMillis": 30000
+            },
+            common: {
+                "host": "127.0.0.1",
+                "port": ,
+                "user": "admin",
+                "password": "123456",
+                "database": "common",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            },
+            fcpay: {
+                "host": "127.0.0.1",
+                "port": ,
+                "user": "admin",
+                "password": "123456",
+                "database": "fcpay",
+                "charset": "UTF8_GENERAL_CI",
+                "connectNum": 3,
+                "idleTimeoutMillis": 30000
+            }
+        },
+        ghlogserver: "http:///exec",
+        amq: "amqp://",
+        noticeServerUrl: "http:///updateNotice/development",
+        sycmessageServerUrl: "http:///updateUnTimeCycMsg/development"
+    }
+};

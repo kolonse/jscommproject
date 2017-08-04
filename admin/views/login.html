@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>后台管理系统-登录</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Bootstrap Core CSS -->
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/sb-admin-2.css" rel="stylesheet">
+    <!-- Custom Fonts -->
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        .errormessage {
+            width: auto;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="login-panel panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">后台管理系统-登录</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form role="form">
+                            <fieldset>
+                                <span class="errormessage"></span>
+                                <div class="form-group">
+                                    <input class="form-control" placeholder="username" name="username" type="text" autofocus>
+                                </div>
+                                <div class="form-group">
+                                    <input class="form-control" placeholder="password" name="password" type="password" value="">
+                                </div>
+                                <div class="ccap" id="ccap"></div>
+                                <!--<div class="checkbox">
+						<label>
+							<input name="remember" type="checkbox" value="Remember Me">Remember Me
+						</label>
+					</div>-->
+                                <!-- Change this to a button or input when using this as a form -->
+                                <a class="btn btn-lg btn-success btn-block" onclick="login()">登录</a>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/format.min.js"></script>
+    <!-- jQuery -->
+    <script src="/jquery/jquery.min.js"></script>
+    <script src="/js/jquery-extent.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Custom Theme JavaScript -->
+    <script src="js/sb-admin-2.js"></script>
+    <script src="js/ccap.js"></script>
+    <!--<script src="js/browser.js"></script>-->
+    <script type="application/javascript">
+        function login() {
+            var param = $("form").getFormData();
+            var cap = $("#ccap").getCCapData();
+            if (param.username.length === 0) {
+                fail(-1, "用户名不能为空");
+                return;
+            }
+            if (param.password.length === 0) {
+                fail(-1, "密码不能为空");
+                return;
+            }
+            if (cap.txt.length !== $("#ccap").getCCapMaxSize()) {
+                fail(-1, "验证码长度错误");
+                return;
+            }
+            param.rand = cap.rand;
+            param.txt = cap.txt;
+            $.post("/login", param, function(result, status, obj) {
+                if (status === "success") {
+                    if (result.code !== 0) {
+                        // 验证码错误
+                        if (result.code === 20103) {
+                            fail(result.code, result.message);
+                            $("#ccap").refreshCCap();
+                            return;
+                        }
+                        fail(result.code, result.message);
+                        return;
+                    }
+                    success(result.config);
+                } else {
+                    fail(-1, "服务异常");
+                }
+            })
+        }
+
+        function fail(code, message) {
+            $(".errormessage").html("code:" + code + ";message:" + message);
+        }
+
+        function success(config) {
+            window.sessionStorage.setItem("config", JSON.stringify(config));
+            window.sessionStorage.setItem("admin", config.selfinfo.username);
+            location.href = "index.html";
+        }
+    </script>
+</body>
+
+</html>
